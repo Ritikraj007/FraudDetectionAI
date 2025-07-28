@@ -20,7 +20,7 @@ export default function Sidebar() {
         <div className="flex items-center space-x-3 mb-4">
           {/* PWC Logo */}
           <div className="w-16 h-12 flex items-center justify-center">
-            <img src="/attached_assets/pwcLogo.png" alt="PwC Logo" className="h-8 w-auto" />
+            <img src="../../public/pwcLogo.png" alt="PwC Logo"/>
           </div>
         </div>
         <div className="flex items-center space-x-3">
