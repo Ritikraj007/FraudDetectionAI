@@ -453,7 +453,7 @@ class DatabaseStorage implements IStorage {
 
     // Build time filter if provided
     let timeFilter;
-    if (timeRange) {
+    if (timeRange && timeRange !== 'all') {
       const now = new Date();
       let startTime = new Date();
       

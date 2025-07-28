@@ -26,7 +26,7 @@
   
   /* Custom PwC-inspired cybersecurity theme */
   --pwc-orange: hsl(24, 100%, 51%);
-  --pwc-blue: hsl(210, 100%, 20%);
+  --pwc-blue: hsl(24, 100%, 51%);
   --dark-bg: hsl(222, 47%, 11%);
   --card-bg: hsl(222, 47%, 18%);
   --border-gray: hsl(215, 16%, 32%);
@@ -210,4 +210,13 @@ input[type="range"]::-moz-range-thumb {
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+}
+
+/* PwC Button Styles */
+.pwc-button-primary {
+  @apply bg-orange-600 hover:bg-orange-700 text-white;
+}
+
+.pwc-button-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300;
 }

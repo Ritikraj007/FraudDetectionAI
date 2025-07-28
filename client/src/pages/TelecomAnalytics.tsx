@@ -11,7 +11,7 @@ import { queryClient } from "@/lib/queryClient";
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function TelecomAnalytics() {
-  const [timeRange, setTimeRange] = useState("week");
+  const [timeRange, setTimeRange] = useState("all");
 
   // Fetch telecom activity stats (no auto-refresh)
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -47,7 +47,7 @@ export default function TelecomAnalytics() {
 
   // Manual refresh function
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/telecom/stats"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/telecom/stats", timeRange] });
     queryClient.invalidateQueries({ queryKey: ["/api/telecom/overall-risk"] });
     queryClient.invalidateQueries({ queryKey: ["/api/telecom/activities"] });
     queryClient.invalidateQueries({ queryKey: ["/api/telecom/fraud-activities"] });
@@ -106,6 +106,7 @@ export default function TelecomAnalytics() {
               <SelectItem value="24hours">24 Hours</SelectItem>
               <SelectItem value="week">1 Week</SelectItem>
               <SelectItem value="month">1 Month</SelectItem>
+              <SelectItem value="all">All Data</SelectItem>
             </SelectContent>
           </Select>
         </div>

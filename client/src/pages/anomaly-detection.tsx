@@ -372,7 +372,7 @@ export default function AnomalyDetection() {
                 <Button 
                   onClick={handleRunAnalysis}
                   disabled={isAnalyzing}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
                 >
                   {isAnalyzing ? "Analyzing..." : "Run AI Analysis"}
                 </Button>

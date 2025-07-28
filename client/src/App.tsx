@@ -3,6 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import AnomalyDetection from "@/pages/anomaly-detection";
@@ -10,9 +11,16 @@ import FraudDetection from "@/pages/fraud-detection";
 import ComplianceReports from "@/pages/compliance-reports";
 import TelecomAnalytics from "@/pages/TelecomAnalytics";
 import FraudAnalysisDemo from "@/pages/FraudAnalysisDemo";
+import Login from "@/pages/login";
 import Sidebar from "@/components/layout/sidebar";
 
-function Router() {
+function ProtectedRouter() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar />
@@ -31,14 +39,20 @@ function Router() {
   );
 }
 
+function Router() {
+  return <ProtectedRouter />;
+}
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
