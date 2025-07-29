@@ -78,10 +78,7 @@ export default function DataImport() {
 
   const switchDataSourceMutation = useMutation({
     mutationFn: async (source: 'database' | 'csv') => {
-      return apiRequest('/api/data-import/switch-source', {
-        method: 'POST',
-        body: { source }
-      });
+      return apiRequest('POST', '/api/data-import/switch-source', { source });
     },
     onSuccess: (data, source) => {
       toast({
@@ -104,9 +101,7 @@ export default function DataImport() {
 
   const deleteFileMutation = useMutation({
     mutationFn: async (filename: string) => {
-      return apiRequest(`/api/data-import/files/${encodeURIComponent(filename)}`, {
-        method: 'DELETE'
-      });
+      return apiRequest('DELETE', `/api/data-import/files/${encodeURIComponent(filename)}`);
     },
     onSuccess: (data, filename) => {
       toast({
