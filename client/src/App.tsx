@@ -11,6 +11,7 @@ import FraudDetection from "@/pages/fraud-detection";
 import ComplianceReports from "@/pages/compliance-reports";
 import TelecomAnalytics from "@/pages/TelecomAnalytics";
 import FraudAnalysisDemo from "@/pages/FraudAnalysisDemo";
+import DataImport from "@/pages/data-import";
 import Login from "@/pages/login";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -29,6 +30,7 @@ function ProtectedRouter() {
           <Route path="/" component={TelecomAnalytics} />
           <Route path="/anomaly-detection" component={AnomalyDetection} />
           <Route path="/fraud-detection" component={FraudDetection} />
+          <Route path="/data-import" component={DataImport} />
           {/* <Route path="/compliance-reports" component={ComplianceReports} />
            */}
           <Route path="/fraud-analysis-demo" component={FraudAnalysisDemo} />

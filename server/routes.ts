@@ -5,14 +5,29 @@ import { threatAnalysisService } from "./services/threatAnalysis";
 import { mockDataGenerator } from "./services/mockData";
 import { fraudAnalysisService } from "./services/fraudAnalysis";
 import { AnomalyDetectionService } from "./services/anomalyDetection.js";
+import { CSVImportService } from "./services/csvImport.js";
 import { z } from "zod";
+import multer from "multer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Start mock data generation
   mockDataGenerator.start();
   
-  // Initialize anomaly detection service
+  // Initialize services
   const anomalyDetectionService = new AnomalyDetectionService(storage);
+  const csvImportService = new CSVImportService(storage);
+  
+  // Configure multer for file uploads
+  const upload = multer({
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only CSV files are allowed'));
+      }
+    }
+  });
 
   // Dashboard routes
   app.get("/api/dashboard/stats", async (req, res) => {
@@ -385,6 +400,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to perform fraud analysis" });
     }
   });
+
+  // CSV Data Import Routes
+  app.get("/api/data-import/status", async (req, res) => {
+    try {
+      const source = csvImportService.getCurrentDataSource();
+      res.json({ source });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get data source status" });
+    }
+  });
+
+  app.get("/api/data-import/files", async (req, res) => {
+    try {
+      const files = csvImportService.getUploadedFiles();
+      res.json(files);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to get uploaded files" });
+    }
+  });
+
+  app.post("/api/data-import/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const result = await csvImportService.uploadCSV(req.file.originalname, req.file.buffer);
+      res.json(result);
+    } catch (error: any) {
+      console.error('CSV upload error:', error);
+      res.status(500).json({ error: error.message || "Failed to upload CSV" });
+    }
+  });
+
+  app.post("/api/data-import/switch-source", async (req, res) => {
+    try {
+      const { source } = req.body;
+      if (source !== 'database' && source !== 'csv') {
+        return res.status(400).json({ error: "Invalid data source" });
+      }
+      
+      csvImportService.switchDataSource(source);
+      res.json({ success: true, source });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to switch data source" });
+    }
+  });
+
+  app.delete("/api/data-import/files/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const success = csvImportService.deleteFile(filename);
+      
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "File not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete file" });
+    }
+  });
+
+  // Override storage methods to use CSV data when appropriate
+  const originalStorage = { ...storage };
+  
+  // Replace storage methods to use CSV import service
+  storage.getTelecomActivities = async (userId?: string, limit?: number, offset?: number) => {
+    return await csvImportService.getTelecomActivities(userId, limit);
+  };
+  
+  storage.getTelecomFraudActivities = async (userId?: string) => {
+    return await csvImportService.getTelecomFraudActivities();
+  };
+  
+  storage.getTelecomActivityStats = async (userId?: string, timeRange?: string) => {
+    return await csvImportService.getTelecomActivityStats();
+  };
 
   const httpServer = createServer(app);
   return httpServer;

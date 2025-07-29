@@ -22,9 +22,9 @@ interface AnomalyAnalysisConfig {
 
 export class AnomalyDetectionService {
   private ai: GoogleGenAI;
-  private storage: typeof storage;
+  private storage: any;
 
-  constructor(storage: typeof storage) {
+  constructor(storage: any) {
     this.storage = storage;
     this.ai = new GoogleGenAI({ 
       apiKey: process.env.GEMINI_API_KEY || "" 
@@ -152,8 +152,8 @@ Consider the sensitivity settings when determining severity levels.
           affectedMetrics: anomaly.affectedMetrics || [],
           details: anomaly.details || {}
         }));
-      } catch (apiError) {
-        console.log("Gemini API error, falling back to statistical analysis:", apiError.message);
+      } catch (apiError: any) {
+        console.log("Gemini API error, falling back to statistical analysis:", apiError?.message || apiError);
         return await this.getStatisticalAnomalies();
       }
 
@@ -222,11 +222,11 @@ Consider the sensitivity settings when determining severity levels.
 
       const locationFreqs = Object.values(locationCounts);
       if (locationFreqs.length > 3) {
-        const avgFreq = locationFreqs.reduce((a: number, b: number) => a + b, 0) / locationFreqs.length;
-        const variance = locationFreqs.reduce((sum: number, val: number) => sum + Math.pow(val - avgFreq, 2), 0) / locationFreqs.length;
+        const avgFreq = locationFreqs.reduce((a, b) => a + b, 0) / locationFreqs.length;
+        const variance = locationFreqs.reduce((sum, val) => sum + Math.pow(val - avgFreq, 2), 0) / locationFreqs.length;
         const stdDev = Math.sqrt(variance);
         
-        Object.entries(locationCounts).forEach(([location, count]: [string, number]) => {
+        Object.entries(locationCounts).forEach(([location, count]) => {
           const zScore = Math.abs(count - avgFreq) / stdDev;
           if (zScore > 2 && count > avgFreq * 2) { // Significant spike
             anomalies.push({

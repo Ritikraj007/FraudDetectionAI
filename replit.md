@@ -136,8 +136,19 @@ The system is designed for scalability, with clear separation between data inges
   - Updated all UI components to light theme with proper contrast and accessibility
 - System now analyzes 2000+ real telecom records dynamically with no hardcoded values
 
-**July 23, 2025:**
+**July 29, 2025:**
 - Successfully migrated TelecomSOC platform from Replit Agent to Replit environment
+- Fixed critical Gemini API error in anomaly detection service (invalid response schema)
+- Added comprehensive CSV data import functionality:
+  - New "Data Import" tab in sidebar with drag & drop CSV upload
+  - Data source switching between PostgreSQL database and uploaded CSV files
+  - File management with upload progress, status tracking, and delete capabilities
+  - Smart CSV parsing with automatic field mapping to telecom schema
+  - Temporary data storage for CSV analysis without database persistence
+- Enhanced backend with multer file upload handling and CSV processing service
+- All core functionality verified working with both data sources
+
+**July 23, 2025:**
 - Added new `telecom_user_activity_log` table to database schema for user activity tracking
 - Imported 2000 CSV records of Jio user incoming calls and SMS data
 - Fixed client-server separation and security best practices
