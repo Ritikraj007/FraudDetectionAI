@@ -120,7 +120,15 @@ Consider the sensitivity settings when determining severity levels.
                   affectedMetrics: { type: "array", items: { type: "string" } },
                   confidence: { type: "number" },
                   source: { type: "string" },
-                  details: { type: "object" }
+                  details: { 
+                    type: "object",
+                    properties: {
+                      affected_users: { type: "number" },
+                      location: { type: "string" },
+                      time_pattern: { type: "string" },
+                      threshold_value: { type: "number" }
+                    }
+                  }
                 },
                 required: ["id", "timestamp", "anomalyType", "severity", "score", "description", "confidence", "source"]
               }
