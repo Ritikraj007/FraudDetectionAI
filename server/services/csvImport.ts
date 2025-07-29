@@ -12,14 +12,14 @@ export interface ImportedFile {
 }
 
 export class CSVImportService {
-  private storage: any;
+  private originalStorage: any;
   private uploadDir: string;
   private metadataFile: string;
   private currentDataSource: 'database' | 'csv' = 'database';
   private tempData: any[] = [];
 
-  constructor(storage: any) {
-    this.storage = storage;
+  constructor(originalStorage: any) {
+    this.originalStorage = originalStorage;
     this.uploadDir = join(process.cwd(), 'uploaded_data');
     this.metadataFile = join(this.uploadDir, 'metadata.json');
     
@@ -261,7 +261,7 @@ export class CSVImportService {
     }
     
     // Fallback to database
-    return await this.storage.getTelecomActivities(userId, limit);
+    return await this.originalStorage.getTelecomActivities(userId, limit);
   }
 
   async getTelecomFraudActivities(): Promise<any[]> {
@@ -269,7 +269,7 @@ export class CSVImportService {
       return this.tempData.filter(item => item.isSpamOrFraud);
     }
     
-    return await this.storage.getTelecomFraudActivities();
+    return await this.originalStorage.getTelecomFraudActivities();
   }
 
   async getTelecomActivityStats(): Promise<any> {
@@ -306,6 +306,6 @@ export class CSVImportService {
       };
     }
     
-    return await this.storage.getTelecomActivityStats();
+    return await this.originalStorage.getTelecomActivityStats();
   }
 }

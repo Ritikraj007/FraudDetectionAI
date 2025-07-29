@@ -210,7 +210,7 @@ export default function TelecomAnalytics() {
                   <div className="text-center py-8">Loading activities...</div>
                 ) : (
                   <div className="space-y-2">
-                    {activities?.slice(0, 10).map((activity: any) => (
+                    {(Array.isArray(activities) ? activities : []).slice(0, 10).map((activity: any) => (
                       <div key={activity.id} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
                           {activity.activityType === 'call' ? (

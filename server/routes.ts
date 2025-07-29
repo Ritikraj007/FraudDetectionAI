@@ -325,10 +325,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/telecom/activities", async (req, res) => {
     try {
       const { userId, limit = 100, offset = 0 } = req.query;
-      const activities = await storage.getTelecomActivities(
+      const activities = await csvImportService.getTelecomActivities(
         userId as string,
-        Number(limit),
-        Number(offset)
+        Number(limit)
       );
       res.json(activities);
     } catch (error) {
@@ -338,8 +337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/telecom/fraud-activities", async (req, res) => {
     try {
-      const { userId } = req.query;
-      const fraudActivities = await storage.getTelecomFraudActivities(userId as string);
+      const fraudActivities = await csvImportService.getTelecomFraudActivities();
       res.json(fraudActivities);
     } catch (error) {
       res.status(500).json({ error: "Failed to get fraud activities" });
@@ -348,11 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/telecom/stats", async (req, res) => {
     try {
-      const { userId, timeRange } = req.query;
-      const stats = await storage.getTelecomActivityStats(
-        userId as string,
-        timeRange as string
-      );
+      const stats = await csvImportService.getTelecomActivityStats();
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: "Failed to get telecom stats" });
@@ -463,21 +457,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Override storage methods to use CSV data when appropriate
+  // Store original storage methods for CSV import service
   const originalStorage = { ...storage };
-  
-  // Replace storage methods to use CSV import service
-  storage.getTelecomActivities = async (userId?: string, limit?: number, offset?: number) => {
-    return await csvImportService.getTelecomActivities(userId, limit);
-  };
-  
-  storage.getTelecomFraudActivities = async (userId?: string) => {
-    return await csvImportService.getTelecomFraudActivities();
-  };
-  
-  storage.getTelecomActivityStats = async (userId?: string, timeRange?: string) => {
-    return await csvImportService.getTelecomActivityStats();
-  };
 
   const httpServer = createServer(app);
   return httpServer;
