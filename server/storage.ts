@@ -414,20 +414,61 @@ class DatabaseStorage implements IStorage {
     }
   }
 
-  async getTelecomFraudActivities(userId?: string): Promise<TelecomUserActivityLog[]> {
+  async getTelecomFraudActivities(userId?: string, timeRange?: string): Promise<TelecomUserActivityLog[]> {
     if (!this.db) return [];
     
-    let query = this.db.select().from(telecomUserActivityLog)
-      .where(eq(telecomUserActivityLog.isSpamOrFraud, 1));
-    
+    // Build time filter if provided
+    let timeFilter;
+    if (timeRange && timeRange !== 'all') {
+      const now = new Date();
+      let startTime = new Date();
+      
+      switch (timeRange) {
+        case 'hour':
+          startTime = new Date(now.getTime() - 60 * 60 * 1000);
+          break;
+        case '24hours':
+          startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case 'week':
+          startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      }
+      timeFilter = gte(telecomUserActivityLog.timestamp, startTime);
+    }
+
+    // Build user filter
+    let userFilter;
     if (userId) {
-      query = query.where(and(
-        eq(telecomUserActivityLog.isSpamOrFraud, 1),
-        eq(telecomUserActivityLog.userId, userId)
-      ));
+      userFilter = eq(telecomUserActivityLog.userId, userId);
+    }
+
+    // Build fraud filter
+    const fraudFilter = eq(telecomUserActivityLog.isSpamOrFraud, 1);
+
+    // Combine filters
+    let whereCondition = fraudFilter;
+    if (timeFilter && userFilter) {
+      whereCondition = and(fraudFilter, timeFilter, userFilter);
+    } else if (timeFilter) {
+      whereCondition = and(fraudFilter, timeFilter);
+    } else if (userFilter) {
+      whereCondition = and(fraudFilter, userFilter);
     }
     
-    return await query.orderBy(desc(telecomUserActivityLog.timestamp));
+    try {
+      return await this.db.select().from(telecomUserActivityLog)
+        .where(whereCondition)
+        .orderBy(desc(telecomUserActivityLog.timestamp));
+    } catch (error) {
+      console.error('Error fetching fraud activities:', error);
+      return [];
+    }
   }
 
   async getTelecomActivityStats(userId?: string, timeRange?: string): Promise<{
