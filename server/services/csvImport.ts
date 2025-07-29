@@ -67,7 +67,7 @@ export class CSVImportService {
         trim: true
       });
 
-      parser.on('readable', function() {
+      parser.on('readable', () => {
         let record;
         while (record = parser.read()) {
           // Transform record to match telecom schema
@@ -76,13 +76,13 @@ export class CSVImportService {
             records.push(transformedRecord);
           }
         }
-      }.bind(this));
+      });
 
       parser.on('error', function(err) {
         reject(err);
       });
 
-      parser.on('end', function() {
+      parser.on('end', () => {
         // Store records in temporary storage
         this.tempData = records;
         
@@ -105,7 +105,7 @@ export class CSVImportService {
           recordCount: records.length,
           filename: filename
         });
-      }.bind(this));
+      });
 
       // Read and parse the file
       createReadStream(filePath).pipe(parser);
@@ -251,9 +251,38 @@ export class CSVImportService {
   }
 
   // Data access methods that respect the current data source
-  async getTelecomActivities(userId?: string, limit?: number): Promise<any[]> {
+  async getTelecomActivities(userId?: string, limit?: number, timeRange?: string): Promise<any[]> {
     if (this.currentDataSource === 'csv' && this.tempData.length > 0) {
       let data = this.tempData;
+      
+      // Apply time range filter
+      if (timeRange && timeRange !== 'all') {
+        const now = new Date();
+        let startTime = new Date();
+        
+        switch (timeRange) {
+          case 'hour':
+            startTime = new Date(now.getTime() - 60 * 60 * 1000);
+            break;
+          case '24hours':
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            break;
+          case 'week':
+            startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        }
+        
+        data = data.filter(item => {
+          const itemTime = new Date(item.timestamp);
+          return itemTime >= startTime && itemTime <= now;
+        });
+      }
+      
       if (userId) {
         data = data.filter(item => item.userId === userId);
       }
@@ -275,9 +304,37 @@ export class CSVImportService {
     return await this.originalStorage.getTelecomFraudActivities();
   }
 
-  async getTelecomActivityStats(): Promise<any> {
+  async getTelecomActivityStats(timeRange?: string): Promise<any> {
     if (this.currentDataSource === 'csv' && this.tempData.length > 0) {
-      const activities = this.tempData;
+      let activities = this.tempData;
+      
+      // Apply time range filter
+      if (timeRange && timeRange !== 'all') {
+        const now = new Date();
+        let startTime = new Date();
+        
+        switch (timeRange) {
+          case 'hour':
+            startTime = new Date(now.getTime() - 60 * 60 * 1000);
+            break;
+          case '24hours':
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            break;
+          case 'week':
+            startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        }
+        
+        activities = activities.filter(activity => {
+          const activityTime = new Date(activity.timestamp);
+          return activityTime >= startTime && activityTime <= now;
+        });
+      }
       
       // Calculate stats from CSV data
       const callCount = activities.filter(a => a.activityType === 'call').length;

@@ -334,10 +334,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Telecom user activity routes
   app.get("/api/telecom/activities", async (req, res) => {
     try {
-      const { userId, limit = 100, offset = 0 } = req.query;
+      const { userId, limit = 100, offset = 0, timeRange } = req.query;
       const activities = await csvImportService.getTelecomActivities(
         userId as string,
-        Number(limit)
+        Number(limit),
+        timeRange as string
       );
       res.json(activities);
     } catch (error) {
@@ -356,7 +357,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/telecom/stats", async (req, res) => {
     try {
-      const stats = await csvImportService.getTelecomActivityStats();
+      const { timeRange } = req.query;
+      const stats = await csvImportService.getTelecomActivityStats(timeRange as string);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ error: "Failed to get telecom stats" });

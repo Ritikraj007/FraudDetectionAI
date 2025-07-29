@@ -150,6 +150,11 @@ The system is designed for scalability, with clear separation between data inges
 - Fixed CSV data source switching and circular dependency issues
 - Added automatic data source switching after CSV upload for improved UX
 - Gemini API integration fully functional with real threat analysis
+- **FIXED: Time period filter dropdown on TelecomAnalytics page**:
+  - Added timeRange parameter support to `/api/telecom/stats` and `/api/telecom/activities` endpoints
+  - Implemented time-based filtering in CSVImportService for both CSV and database data sources
+  - Fixed filter combination logic to properly handle multiple filters (severity + type + timeRange)
+  - Verified filtering works correctly: "All Data" shows 5000 records, time-based filters show appropriately filtered results
 - Created comprehensive business case documentation and presentation materials:
   - Complete PowerPoint presentation structure and storytelling framework
   - Technical architecture diagram (SVG format)
