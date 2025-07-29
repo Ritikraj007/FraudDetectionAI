@@ -1,16 +1,1 @@
-[
-  {
-    "name": "jio_user_incoming_calls_sms_2000.csv",
-    "size": 209868,
-    "recordCount": 2000,
-    "uploadedAt": "2025-07-29T06:23:50.468Z",
-    "status": "active"
-  },
-  {
-    "name": "telecom_data_5000_rows.csv",
-    "size": 527782,
-    "recordCount": 5000,
-    "uploadedAt": "2025-07-29T06:24:14.227Z",
-    "status": "active"
-  }
-]
+[]
