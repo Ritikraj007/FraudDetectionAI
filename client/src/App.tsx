@@ -27,9 +27,9 @@ function ProtectedRouter() {
       <Sidebar />
       <main className="flex-1 overflow-auto">
         <Switch>
-          <Route path="/" component={TelecomAnalytics} />
+          <Route path="/telecom-analytics" component={TelecomAnalytics} />
           <Route path="/anomaly-detection" component={AnomalyDetection} />
-          <Route path="/fraud-detection" component={FraudDetection} />
+          <Route path="/" component={FraudDetection} />
           <Route path="/data-import" component={DataImport} />
           {/* <Route path="/compliance-reports" component={ComplianceReports} />
            */}
