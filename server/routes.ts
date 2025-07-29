@@ -43,12 +43,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { limit = 100, offset = 0, severity, type, timeRange } = req.query;
       
-      let threats;
-      if (severity && typeof severity === 'string') {
-        threats = await storage.getThreatsBySeverity(severity);
-      } else if (type && typeof type === 'string') {
-        threats = await storage.getThreatsByType(type);
-      } else if (timeRange && typeof timeRange === 'string') {
+      // Get all threats first
+      let threats = await storage.getThreats(Number(limit), Number(offset));
+      
+      // Apply time range filter first if specified
+      if (timeRange && typeof timeRange === 'string') {
         const now = new Date();
         let startTime = new Date();
         
@@ -69,9 +68,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
             startTime = new Date(now.getTime() - 60 * 60 * 1000);
         }
         
-        threats = await storage.getThreatsInTimeRange(startTime, now);
-      } else {
-        threats = await storage.getThreats(Number(limit), Number(offset));
+        threats = threats.filter(threat => {
+          const threatTime = new Date(threat.timestamp);
+          return threatTime >= startTime && threatTime <= now;
+        });
+      }
+      
+      // Apply severity filter if specified
+      if (severity && typeof severity === 'string' && severity !== 'all') {
+        threats = threats.filter(threat => threat.severity === severity);
+      }
+      
+      // Apply threat type filter if specified
+      if (type && typeof type === 'string' && type !== 'all') {
+        threats = threats.filter(threat => threat.threatType === type);
       }
       
       res.json(threats);
@@ -222,9 +232,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fraudSensitivity = fraudConfig?.configValue || 80;
       
       const anomalies = await anomalyDetectionService.analyzeAnomalies({
-        sms_sensitivity: smsSensitivity,
-        call_sensitivity: callSensitivity,
-        fraud_sensitivity: fraudSensitivity
+        sms_sensitivity: Number(smsSensitivity) || 75,
+        call_sensitivity: Number(callSensitivity) || 65,
+        fraud_sensitivity: Number(fraudSensitivity) || 80
       });
       
       res.json(anomalies);
