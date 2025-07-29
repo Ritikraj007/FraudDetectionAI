@@ -31,17 +31,17 @@ export default function TelecomAnalytics() {
 
   // Fetch recent activities (no auto-refresh)
   const { data: activities, isLoading: activitiesLoading } = useQuery({
-    queryKey: ["/api/telecom/activities"],
+    queryKey: ["/api/telecom/activities", timeRange],
     queryFn: () => 
-      fetch(`/api/telecom/activities?limit=10`)
+      fetch(`/api/telecom/activities?limit=10&timeRange=${timeRange}`)
         .then(res => res.json()),
   });
 
   // Fetch fraud activities (no auto-refresh)
   const { data: fraudActivities, isLoading: fraudLoading } = useQuery({
-    queryKey: ["/api/telecom/fraud-activities"],
+    queryKey: ["/api/telecom/fraud-activities", timeRange],
     queryFn: () => 
-      fetch(`/api/telecom/fraud-activities`)
+      fetch(`/api/telecom/fraud-activities?timeRange=${timeRange}`)
         .then(res => res.json()),
   });
 
@@ -49,8 +49,8 @@ export default function TelecomAnalytics() {
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/telecom/stats", timeRange] });
     queryClient.invalidateQueries({ queryKey: ["/api/telecom/overall-risk"] });
-    queryClient.invalidateQueries({ queryKey: ["/api/telecom/activities"] });
-    queryClient.invalidateQueries({ queryKey: ["/api/telecom/fraud-activities"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/telecom/activities", timeRange] });
+    queryClient.invalidateQueries({ queryKey: ["/api/telecom/fraud-activities", timeRange] });
   };
 
   if (statsLoading || riskLoading) {

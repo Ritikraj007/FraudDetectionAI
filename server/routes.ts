@@ -348,7 +348,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/telecom/fraud-activities", async (req, res) => {
     try {
-      const fraudActivities = await csvImportService.getTelecomFraudActivities();
+      const { timeRange } = req.query;
+      const fraudActivities = await csvImportService.getTelecomFraudActivities(undefined, timeRange as string);
       res.json(fraudActivities);
     } catch (error) {
       res.status(500).json({ error: "Failed to get fraud activities" });

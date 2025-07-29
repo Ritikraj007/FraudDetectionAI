@@ -5,9 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
+  { name: "Fraud Detection", href: "/", icon: ShieldQuestion },
   { name: "Anomaly Detection", href: "/anomaly-detection", icon: Search },
-  { name: "Fraud Detection", href: "/fraud-detection", icon: ShieldQuestion },
-  { name: "Real-Time Threat Dashboard", href: "/", icon: Gauge },
+  
+  { name: "Real-Time Threat Dashboard", href: "/telecom-analytics", icon: Gauge },
   { name: "Data Import", href: "/data-import", icon: Upload },
   // { name: "Compliance Reports", href: "/compliance-reports", icon: FileText },
 ];

@@ -296,12 +296,46 @@ export class CSVImportService {
     return await this.originalStorage.getTelecomActivities(userId, limit);
   }
 
-  async getTelecomFraudActivities(): Promise<any[]> {
+  async getTelecomFraudActivities(userId?: string, timeRange?: string): Promise<any[]> {
     if (this.currentDataSource === 'csv' && this.tempData.length > 0) {
-      return this.tempData.filter(item => item.isSpamOrFraud);
+      let data = this.tempData.filter(item => item.isSpamOrFraud);
+      
+      // Apply time range filter
+      if (timeRange && timeRange !== 'all') {
+        const now = new Date();
+        let startTime = new Date();
+        
+        switch (timeRange) {
+          case 'hour':
+            startTime = new Date(now.getTime() - 60 * 60 * 1000);
+            break;
+          case '24hours':
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            break;
+          case 'week':
+            startTime = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        }
+        
+        data = data.filter(item => {
+          const itemTime = new Date(item.timestamp);
+          return itemTime >= startTime && itemTime <= now;
+        });
+      }
+      
+      if (userId) {
+        data = data.filter(item => item.userId === userId);
+      }
+      
+      return data;
     }
     
-    return await this.originalStorage.getTelecomFraudActivities();
+    return await this.originalStorage.getTelecomFraudActivities(userId);
   }
 
   async getTelecomActivityStats(timeRange?: string): Promise<any> {
