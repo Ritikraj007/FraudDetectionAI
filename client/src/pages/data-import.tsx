@@ -83,29 +83,47 @@ export default function DataImport() {
         body: { source }
       });
     },
-    onSuccess: () => {
+    onSuccess: (data, source) => {
       toast({
         title: "Data source switched",
-        description: "System will now use the selected data source",
+        description: `System is now using ${source === 'csv' ? 'CSV files' : 'PostgreSQL database'}`,
       });
       // Invalidate all related queries to refresh the UI
-      queryClient.invalidateQueries({ queryKey: ["/api/data-import"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/data-import/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/data-import/files"] });
       queryClient.invalidateQueries({ queryKey: ["/api/telecom"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Switch failed",
+        description: error.message || "Failed to switch data source",
+        variant: "destructive",
+      });
     },
   });
 
   const deleteFileMutation = useMutation({
     mutationFn: async (filename: string) => {
-      return apiRequest(`/api/data-import/files/${filename}`, {
+      return apiRequest(`/api/data-import/files/${encodeURIComponent(filename)}`, {
         method: 'DELETE'
       });
     },
-    onSuccess: () => {
+    onSuccess: (data, filename) => {
       toast({
         title: "File deleted",
-        description: "CSV file has been removed",
+        description: `${filename} has been removed successfully`,
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/data-import"] });
+      // Invalidate all related queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: ["/api/data-import/files"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/data-import/status"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/telecom"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Delete failed",
+        description: error.message || "Failed to delete file",
+        variant: "destructive",
+      });
     },
   });
 
