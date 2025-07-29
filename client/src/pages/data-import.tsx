@@ -54,11 +54,16 @@ export default function DataImport() {
     onSuccess: (data) => {
       toast({
         title: "Upload successful",
-        description: `Imported ${data.recordCount} records from ${data.filename}`,
+        description: `Imported ${data.recordCount} records from ${data.filename}. Data source automatically switched to CSV.`,
       });
+      // Invalidate all related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["/api/data-import"] });
-      setUploadProgress(0);
-      setIsUploading(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/telecom"] });
+      setUploadProgress(100);
+      setTimeout(() => {
+        setUploadProgress(0);
+        setIsUploading(false);
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
@@ -83,7 +88,9 @@ export default function DataImport() {
         title: "Data source switched",
         description: "System will now use the selected data source",
       });
+      // Invalidate all related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["/api/data-import"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/telecom"] });
     },
   });
 

@@ -85,6 +85,9 @@ export class CSVImportService {
       parser.on('end', function() {
         // Store records in temporary storage
         this.tempData = records;
+        
+        // Automatically switch to CSV data source after successful upload
+        this.currentDataSource = 'csv';
         this.saveMetadata();
         
         // Update file metadata
