@@ -5,9 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
-  { name: "Real-Time Threats", href: "/", icon: Gauge },
   { name: "Anomaly Detection", href: "/anomaly-detection", icon: Search },
   { name: "Fraud Detection", href: "/fraud-detection", icon: ShieldQuestion },
+  { name: "Real-Time Threat Dashboard", href: "/", icon: Gauge },
   { name: "Data Import", href: "/data-import", icon: Upload },
   // { name: "Compliance Reports", href: "/compliance-reports", icon: FileText },
 ];
